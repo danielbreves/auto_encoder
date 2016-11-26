@@ -5,6 +5,7 @@ import os
 import sys
 import getopt
 import subprocess
+import re
 
 USAGE_INFO = 'python3 encode.py -i <input_dir> -o <output_dir> [--debug] [--dry]'
 FFMPEG_PATH = '/usr/local/bin/ffmpeg'
@@ -19,6 +20,11 @@ BITRATE = '2500k'
 
 INPUT_EXTS = ['.mkv']
 OUTPUT_EXT = '.mp4'
+
+TV_SHOW_REGEX = re.compile(r".+S\d{2}E\d{2}.+")
+
+HEADER_COLOR = '\033[95m'
+END_COLOR = '\033[0m'
 
 def stream_codec(stream, filename):
     """return the codec name for a stream"""
@@ -46,7 +52,9 @@ def encode(root, filename, src_dir, dest_dir, dry_run=False, debug=False):
     """encode file using ffmpeg"""
     input_filename = os.path.join(root, filename)
     path_to_create = os.path.dirname(os.path.relpath(input_filename, src_dir))
-    path_to_create = os.path.join(dest_dir, path_to_create)
+
+    cat_dir = 'TV Shows' if TV_SHOW_REGEX.match(filename) else 'Movies'
+    path_to_create = os.path.join(dest_dir, cat_dir, path_to_create)
     output_filename = os.path.join(path_to_create, os.path.splitext(filename)[0] + OUTPUT_EXT)
 
     if os.path.isfile(output_filename):
@@ -67,7 +75,7 @@ def encode(root, filename, src_dir, dest_dir, dry_run=False, debug=False):
 
     command += [os.path.expanduser(output_filename)]
 
-    print('\n', ' '.join(command), '\n')
+    print('--------------------\n', HEADER_COLOR + ' '.join(command) + END_COLOR, '\n')
 
     if not dry_run:
         os.makedirs(path_to_create, exist_ok=True)
