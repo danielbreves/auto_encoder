@@ -6,21 +6,9 @@ import sys
 import getopt
 import subprocess
 import re
+import config
 
 USAGE_INFO = 'python3 encode.py -i <input_dir> -o <output_dir> [--debug] [--dry]'
-FFMPEG_PATH = '/usr/local/bin/ffmpeg'
-
-VIDEO_CODEC = 'h264'
-VIDEO_ENCODER = 'h264_omx'
-
-AUDIO_CODEC = 'aac'
-AUDIO_ENCODER = 'aac'
-
-BITRATE = '2500k'
-
-INPUT_EXTS = ['.mkv']
-OUTPUT_EXT = '.mp4'
-
 TV_SHOW_REGEX = re.compile(r".+S\d{2}E\d{2}.+")
 
 HEADER_COLOR = '\033[95m'
@@ -45,7 +33,7 @@ def walk_src_media(src_dir, callback):
     """get a sorted list of files that have a valid input extension"""
     for root, _dirs, files in os.walk(os.path.expanduser(src_dir)):
         for filename in files:
-            if os.path.splitext(filename)[1] in INPUT_EXTS:
+            if os.path.splitext(filename)[1] in config.INPUT_EXTS:
                 callback(root, filename)
 
 def encode(root, filename, src_dir, dest_dir, dry_run=False, debug=False):
@@ -55,20 +43,20 @@ def encode(root, filename, src_dir, dest_dir, dry_run=False, debug=False):
 
     cat_dir = 'TV Shows' if TV_SHOW_REGEX.match(filename) else 'Movies'
     path_to_create = os.path.join(dest_dir, cat_dir, path_to_create)
-    output_filename = os.path.join(path_to_create, os.path.splitext(filename)[0] + OUTPUT_EXT)
+    output_filename = os.path.join(path_to_create, os.path.splitext(filename)[0] + config.OUTPUT_EXT)
 
     if os.path.isfile(output_filename):
         return
 
-    command = [FFMPEG_PATH, '-i', os.path.expanduser(input_filename)]
+    command = [config.FFMPEG_PATH, '-i', os.path.expanduser(input_filename)]
 
-    v_encoder = 'copy' if stream_codec('v:0', input_filename) == VIDEO_CODEC else VIDEO_ENCODER
+    v_encoder = 'copy' if stream_codec('v:0', input_filename) == config.VIDEO_CODEC else config.VIDEO_ENCODER
     command += ['-c:v', v_encoder]
 
-    a_encoder = 'copy' if stream_codec('a:0', input_filename) == AUDIO_CODEC else AUDIO_ENCODER
+    a_encoder = 'copy' if stream_codec('a:0', input_filename) == config.AUDIO_CODEC else config.AUDIO_ENCODER
     command += ['-c:a', a_encoder]
 
-    command += ['-b:v', BITRATE]
+    command += ['-b:v', config.BITRATE]
 
     if debug:
         command += ['-to', '15']
