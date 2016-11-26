@@ -3,8 +3,10 @@ Source: https://trac.ffmpeg.org/wiki/Encode/H.264
 """
 import os
 import sys
+import getopt
 import subprocess
 
+USAGE_INFO = 'python3 encode.py -i <input_dir> -o <output_dir> [--debug] [--dry]'
 FFMPEG_PATH = '/usr/local/bin/ffmpeg'
 
 VIDEO_CODEC = 'h264'
@@ -14,9 +16,6 @@ AUDIO_CODEC = 'aac'
 AUDIO_ENCODER = 'aac'
 
 BITRATE = '2500k'
-
-SRC_DIR = os.path.expanduser('~/Desktop')
-DEST_DIR = os.path.expanduser('~/Desktop/Media')
 
 INPUT_EXTS = ['.mkv']
 OUTPUT_EXT = '.mp4'
@@ -36,18 +35,18 @@ def stream_codec(stream, filename):
         filename
     ])
 
-def walk_src_media(callback):
+def walk_src_media(src_dir, callback):
     """get a sorted list of files that have a valid input extension"""
-    for root, _dirs, files in os.walk(os.path.expanduser(SRC_DIR)):
+    for root, _dirs, files in os.walk(os.path.expanduser(src_dir)):
         for filename in files:
             if os.path.splitext(filename)[1] in INPUT_EXTS:
                 callback(root, filename)
 
-def encode(root, filename, opts):
+def encode(root, filename, src_dir, dest_dir, dry_run=False, debug=False):
     """encode file using ffmpeg"""
     input_filename = os.path.join(root, filename)
-    path_to_create = os.path.dirname(os.path.relpath(input_filename, SRC_DIR))
-    path_to_create = os.path.join(DEST_DIR, path_to_create)
+    path_to_create = os.path.dirname(os.path.relpath(input_filename, src_dir))
+    path_to_create = os.path.join(dest_dir, path_to_create)
     output_filename = os.path.join(path_to_create, os.path.splitext(filename)[0] + OUTPUT_EXT)
 
     if os.path.isfile(output_filename):
@@ -63,20 +62,43 @@ def encode(root, filename, opts):
 
     command += ['-b:v', BITRATE]
 
-    if '--debug' in opts:
+    if debug:
         command += ['-to', '15']
 
     command += [os.path.expanduser(output_filename)]
 
-    if '--dry' in opts:
-        print(' '.join(command), '\n')
-    else:
+    print('\n', ' '.join(command), '\n')
+
+    if not dry_run:
         os.makedirs(path_to_create, exist_ok=True)
         subprocess.run(command)
 
-def process(args):
-    """encode media from the source directory into the destination directory"""
-    walk_src_media(lambda root, filename: encode(root, filename, args))
+def main(argv):
+    """main function executed when running from the command-line"""
+    in_dir = os.getcwd()
+    out_dir = os.getcwd()
+    dry = False
+    debug = False
+
+    try:
+        opts, _args = getopt.getopt(argv, "hi:o:", ["debug", "dry", "input=", "output="])
+    except getopt.GetoptError:
+        print(USAGE_INFO)
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print(USAGE_INFO)
+            sys.exit()
+        elif opt in ("-i", "--input"):
+            in_dir = arg
+        elif opt in ("-o", "--output"):
+            out_dir = arg
+        elif opt == '--dry':
+            dry = True
+        elif opt == '--debug':
+            debug = True
+
+    walk_src_media(in_dir, lambda root, filename: encode(root, filename, in_dir, out_dir, dry_run=dry, debug=debug))
 
 if __name__ == "__main__":
-    process(sys.argv[1:])
+    main(sys.argv[1:])
