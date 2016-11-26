@@ -71,7 +71,7 @@ def encode(root, filename, src_dir, dest_dir, dry_run=False, debug=False):
 
     if not dry_run:
         os.makedirs(path_to_create, exist_ok=True)
-        subprocess.run(command)
+        subprocess.call(command)
 
 def main(argv):
     """main function executed when running from the command-line"""
