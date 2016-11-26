@@ -36,6 +36,9 @@ def walk_src_media(src_dir, callback):
             if os.path.splitext(filename)[1] in config.INPUT_EXTS:
                 callback(root, filename)
 
+def print_result(result):
+    print('--------------------\n', HEADER_COLOR + result + END_COLOR, '\n')
+
 def encode(root, filename, src_dir, dest_dir, dry_run=False, debug=False):
     """encode file using ffmpeg"""
     input_filename = os.path.join(root, filename)
@@ -46,6 +49,7 @@ def encode(root, filename, src_dir, dest_dir, dry_run=False, debug=False):
     output_filename = os.path.join(path_to_create, os.path.splitext(filename)[0] + config.OUTPUT_EXT)
 
     if os.path.isfile(output_filename):
+        print_result('Skipping ' + output_filename + ', file already exists!')
         return
 
     command = [config.FFMPEG_PATH, '-i', os.path.expanduser(input_filename)]
@@ -63,7 +67,7 @@ def encode(root, filename, src_dir, dest_dir, dry_run=False, debug=False):
 
     command += [os.path.expanduser(output_filename)]
 
-    print('--------------------\n', HEADER_COLOR + ' '.join(command) + END_COLOR, '\n')
+    print_result(' '.join(command))
 
     if not dry_run:
         os.makedirs(path_to_create, exist_ok=True)
