@@ -2,7 +2,7 @@
 A python script to automatically encode media in a specified directory.
 
 Usage:
-`python3 encoder.py [-i <input_dir>] [-o <output_dir>] [--debug] [--dry] [--watch]`
+`python3 auto_encoder.py [-i <input_dir>] [-o <output_dir>] [--debug] [--dry] [--watch]`
 
 ## Dependencies
 - [Python 3.x](https://www.python.org)
