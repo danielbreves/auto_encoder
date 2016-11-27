@@ -28,7 +28,7 @@ def make_path(src_path, src_dir, dest_dir, dry_run=False):
     filename = os.path.basename(src_path)
     path_to_create = os.path.dirname(os.path.relpath(src_path, src_dir))
 
-    cat_dir = 'TV Shows' if TV_SHOW_REGEX.match(filename) else 'Movies'
+    cat_dir = 'TV Shows' if TV_SHOW_REGEX.match(src_path) else 'Movies'
     path_to_create = os.path.join(dest_dir, cat_dir, path_to_create)
 
     if not dry_run:
