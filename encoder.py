@@ -8,6 +8,8 @@ import config
 import utils
 
 TV_SHOW_REGEX = re.compile(r".+S\d{2}E\d{2}.+")
+CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
+TMP_DIR = os.path.join(CURRENT_DIR, 'tmp')
 
 def stream_codec(stream, filename):
     """return the codec name for a stream"""
@@ -40,6 +42,10 @@ def make_path(src_path, src_dir, dest_dir, dry_run=False):
 def encode(src_path, src_dir, dest_dir, dry_run=False, debug=False):
     """encode file using ffmpeg"""
     output_filename = make_path(src_path, src_dir, dest_dir, dry_run=dry_run)
+    output_filename = os.path.expanduser(output_filename)
+
+    os.makedirs(TMP_DIR, exist_ok=True)
+    tmp_filename = os.path.join(TMP_DIR, os.path.basename(output_filename))
 
     if os.path.isfile(output_filename):
         utils.print_result('Skipping ' + output_filename + ', file already exists!')
@@ -56,11 +62,12 @@ def encode(src_path, src_dir, dest_dir, dry_run=False, debug=False):
     command += ['-b:v', config.BITRATE]
 
     if debug:
-        command += ['-to', '1']
+        command += ['-to', '5']
 
-    command += [os.path.expanduser(output_filename)]
+    command += [tmp_filename]
 
     utils.print_result('Running: ' + ' '.join(command))
 
     if not dry_run:
         subprocess.call(command)
+        os.rename(tmp_filename, output_filename)
