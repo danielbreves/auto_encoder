@@ -22,7 +22,7 @@ def stream_codec(stream, filename):
         '-of',
         'default=nokey=1:noprint_wrappers=1',
         filename
-    ])
+    ]).decode('ascii').strip()
 
 def make_path(src_path, src_dir, dest_dir, dry_run=False):
     filename = os.path.basename(src_path)
