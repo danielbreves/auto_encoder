@@ -8,5 +8,5 @@ AUDIO_ENCODER = 'aac'
 
 BITRATE = '2500k'
 
-INPUT_EXTS = ['.mkv', '.mp4']
+INPUT_EXTS = ['.mkv', '.mp4', '.avi']
 OUTPUT_EXT = '.mp4'
