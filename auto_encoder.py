@@ -12,7 +12,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from watchdog.events import FileCreatedEvent
 
-USAGE_INFO = 'python3 encode.py -i <input_dir> -o <output_dir> [--debug] [--dry]'
+USAGE_INFO = 'python3 encode.py -i <input_dir> -o <output_dir> [--debug] [--dry] [--watch] [--delete-original]'
 
 class MediaFolderEventHandler(FileSystemEventHandler):
     def __init__(self, in_dir, out_dir, options):
