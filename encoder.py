@@ -70,6 +70,8 @@ def encode(src_path, src_dir, dest_dir, opts):
 
     if not opts['dry']:
         subprocess.call(command)
+        utils.print_result('Moving: ' + tmp_filename + ' to: ' + output_filename)
         os.rename(tmp_filename, output_filename)
         if opts['delete_original']:
+            utils.print_result('Deleting: ' + src_path)
             os.remove(src_path)
