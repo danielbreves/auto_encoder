@@ -2,7 +2,7 @@
 A python script to automatically encode media in a specified directory.
 
 Usage:
-`python3 auto_encoder.py [-i <input_dir>] [-o <output_dir>] [--debug] [--dry] [--watch]`
+`python3 auto_encoder.py [-i <input_dir>] [-o <output_dir>] [--debug] [--dry] [--watch] [--delete-original]`
 
 ## Dependencies
 - [Python 3.x](https://www.python.org)
@@ -30,3 +30,7 @@ Logs the output of each encoding command without actually encoding.
 `--watch`
 
 Watches for changes in the input directory.
+
+`--delete-original`
+
+Deletes files from input_dir after encoding.

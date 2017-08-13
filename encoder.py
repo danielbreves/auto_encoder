@@ -39,9 +39,9 @@ def make_path(src_path, src_dir, dest_dir, dry_run=False):
     output_filename = os.path.join(path_to_create, os.path.splitext(filename)[0] + config.OUTPUT_EXT)
     return output_filename
 
-def encode(src_path, src_dir, dest_dir, dry_run=False, debug=False):
+def encode(src_path, src_dir, dest_dir, opts):
     """encode file using ffmpeg"""
-    output_filename = make_path(src_path, src_dir, dest_dir, dry_run=dry_run)
+    output_filename = make_path(src_path, src_dir, dest_dir, dry_run=opts['dry'])
     output_filename = os.path.expanduser(output_filename)
 
     os.makedirs(TMP_DIR, exist_ok=True)
@@ -61,13 +61,15 @@ def encode(src_path, src_dir, dest_dir, dry_run=False, debug=False):
 
     command += ['-b:v', config.BITRATE]
 
-    if debug:
+    if opts['debug']:
         command += ['-to', '5']
 
     command += [tmp_filename]
 
     utils.print_result('Running: ' + ' '.join(command))
 
-    if not dry_run:
+    if not opts['dry']:
         subprocess.call(command)
         os.rename(tmp_filename, output_filename)
+        if opts['delete_original']:
+            os.remove(src_path)

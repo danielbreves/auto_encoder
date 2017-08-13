@@ -40,12 +40,15 @@ def main(argv):
     """main function executed when running from the command-line"""
     in_dir = os.getcwd()
     out_dir = os.getcwd()
-    dry = False
-    debug = False
     watch = False
+    options = {
+        'dry': False,
+        'debug': False,
+        'delete_original': False
+    }
 
     try:
-        opts, _args = getopt.getopt(argv, "hi:o:", ["watch", "debug", "dry", "input=", "output="])
+        opts, _args = getopt.getopt(argv, "hi:o:", ["watch", "debug", "dry", "delete-original", "input=", "output="])
     except getopt.GetoptError:
         print(USAGE_INFO)
         sys.exit(2)
@@ -58,14 +61,16 @@ def main(argv):
         elif opt in ("-o", "--output"):
             out_dir = arg
         elif opt == '--dry':
-            dry = True
+            options['dry'] = True
         elif opt == '--debug':
-            debug = True
+            options['debug'] = True
+        elif opt == '--delete-original':
+            options['delete_original'] = True
         elif opt == '--watch':
             watch = True
 
     utils.print_result('Encoding existing media: ' + in_dir)
-    walk_src_media(in_dir, lambda src_path: encode(src_path, in_dir, out_dir, dry_run=dry, debug=debug))
+    walk_src_media(in_dir, lambda src_path: encode(src_path, in_dir, out_dir, options))
 
     if watch:
         utils.print_result('Watching: ' + in_dir)
