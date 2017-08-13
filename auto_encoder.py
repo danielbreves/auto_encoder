@@ -15,16 +15,15 @@ from watchdog.events import FileCreatedEvent
 USAGE_INFO = 'python3 encode.py -i <input_dir> -o <output_dir> [--debug] [--dry]'
 
 class MediaFolderEventHandler(FileSystemEventHandler):
-    def __init__(self, in_dir, out_dir, dry_run=False, debug=False):
+    def __init__(self, in_dir, out_dir, options):
         self.in_dir = in_dir
         self.out_dir = out_dir
-        self.dry_run = dry_run
-        self.debug = debug
+        self.opts = options
 
     def on_any_event(self, event):
         if isinstance(event, FileCreatedEvent) and is_media(event.src_path):
             utils.print_result('Media created: ' + event.src_path)
-            encode(event.src_path, self.in_dir, self.out_dir, dry_run=self.dry_run, debug=self.debug)
+            encode(event.src_path, self.in_dir, self.out_dir, self.opts)
 
 def is_media(filename):
     return os.path.splitext(filename)[1] in config.INPUT_EXTS
@@ -74,7 +73,7 @@ def main(argv):
 
     if watch:
         utils.print_result('Watching: ' + in_dir)
-        event_handler = MediaFolderEventHandler(in_dir, out_dir, dry_run=dry, debug=debug)
+        event_handler = MediaFolderEventHandler(in_dir, out_dir, options)
         observer = Observer()
         observer.schedule(event_handler, in_dir, recursive=True)
         observer.start()
